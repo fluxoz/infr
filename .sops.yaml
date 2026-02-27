@@ -1,0 +1,9 @@
+keys: 
+  - &secret age1xpra558uktk8fpu0jpmj0maq4slkmr9m0drhj2a0hk0v04p9zvdqkhfg6j
+  - &tower age1e0jds208hmjq2860q7rdcuam88ge863sz8lgeqsxxkn4v2520u9scdps63
+  - &admins
+    - *secret
+    - *tower
+creation_rules:
+  - path_regex: secrets/*
+    age: *admins
