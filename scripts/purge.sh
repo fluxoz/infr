@@ -36,7 +36,7 @@ function get_linodes {
 			-H "Authorization: Bearer $LINODE_TOKEN" \
 			"$LINODE_API/linode/instances/" | jq -r ".data[] | select(.label | contains(\"$LABEL\")) | .id")
 	mapfile -t LINODES_TO_DELETE <<< "$LINODES"
-
+}
 
 function delete_linode {
 	delete=$(curl -s -X DELETE \
