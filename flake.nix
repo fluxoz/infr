@@ -37,7 +37,7 @@
           set -euo pipefail
           shopt -s nullglob
           echo "[INFO]: Initiating image upload"
-          echo "$(ls)"
+          ls -lah
           files=(result/nixos*.img.gz)
           if [ ''${#files[@]} -gt 0 ]; then
             IMAGE_PATH="$(pwd)/''${files[0]}"
