@@ -46,7 +46,7 @@ function get_latest_image {
 		"$LINODE_API/images" | jq -r ".data.[] | select(.label | contains(\"$HASH\")) | .id")
 	if [[ -z "$LATEST_IMAGE" ]]; then
 		echo "[INFO]: no available image matching our current build hash, running upload script"
-		./scripts/upload-image.sh
+		'nix run .#upload'
 		get_latest_image
 	fi
 }
