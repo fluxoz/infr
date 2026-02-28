@@ -20,7 +20,7 @@
           #!/usr/bin/env bash
           set -euo pipefail
           echo "Building Linode image..."
-          nixos-rebuild build-image --flake ${self}/#baseconfig --image-variant linode
+          nixos-rebuild build-image --flake ${self}#baseconfig --image-variant linode
           echo "✓ Image built"
           ls -lh result/
         '';
