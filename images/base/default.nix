@@ -55,11 +55,4 @@
       };
     };
   };
-
-  swapDevices = lib.mkForce [
-    {
-      device = "/swapfile";
-      size = 4096;
-    }
-  ];
 }
