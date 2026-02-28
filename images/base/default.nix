@@ -1,9 +1,9 @@
 { config, pkgs, lib, modulesPath, ... }:
 
 {
-  # imports = [
-  #   "${modulesPath}/virtualisation/linode-image.nix"
-  # ];
+  imports = [
+    "${modulesPath}/virtualisation/linode-image.nix"
+  ];
 
   system.stateVersion = "25.11";  
 
