@@ -37,6 +37,7 @@
           set -euo pipefail
           shopt -s nullglob
           SECRET_FILE="${self}/secrets/linode.env"
+          echo "$SECRET_FILE"
           echo "[INFO]: Initiating image upload"
           files=(result/nixos*.img.gz)
           if [ ''${#files[@]} -gt 0 ]; then
