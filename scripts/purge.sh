@@ -50,7 +50,6 @@ function get_domain_id {
 }
 
 LINODES_TO_DELETE=()
-IPV4
 function get_linodes {
 	LINODES=$(curl -s -X GET \
 			-H "Authorization: Bearer $LINODE_TOKEN" \
