@@ -3,6 +3,7 @@
 {
   imports = [
     "${modulesPath}/virtualisation/linode-image.nix"
+    "${modulesPath}/virtualisation/linode-config.nix"
   ];
 
   system.stateVersion = "25.11";  
@@ -56,5 +57,5 @@
     };
   };
 
-  swapDevices = [];
+  swapDevices = lib.mkForce [ ];
 }
