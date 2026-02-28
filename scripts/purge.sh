@@ -35,7 +35,6 @@ shift $((OPTIND -1))
 
 DOMAIN_ID=""
 function get_domain_id {
-	DOMAIN_SHORT=$(echo "$DOMAIN" | sed -r 's/^[^.]*\.//g')
 	DOMAIN_RESPONSE=$(curl -s -X GET \
 		-H "Authorization: Bearer $LINODE_TOKEN" \
 		"$LINODE_API/domains" | jq ".data[] | select(.domain | contains(\"$DOMAIN_SHORT\")) | .id")
