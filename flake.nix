@@ -5,7 +5,7 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
   };
 
-  outputs = { self, nixpkgs, ... }:
+  outputs = { self, nixpkgs, sops-nix, ... }:
   let
     system = "x86_64-linux";
     pkgs = nixpkgs.legacyPackages.${system};
@@ -36,19 +36,18 @@
         text = ''
           set -euo pipefail
           shopt -s nullglob
+          SECRET_FILE="${self}/secrets/linode.env"
           echo "[INFO]: Initiating image upload"
-          ls -lah
-          pwd
           files=(result/nixos*.img.gz)
           if [ ''${#files[@]} -gt 0 ]; then
             IMAGE_PATH="$(pwd)/''${files[0]}"
             echo "Uploading image: $IMAGE_PATH"
-            sops exec-env ./secrets/linode.env "./scripts/upload-image.sh -i $IMAGE_PATH $*"
+            sops exec-env "$SECRET_FILE" "./scripts/upload-image.sh -i $IMAGE_PATH $*"
           else
             echo "Existing: No image found at result/nixos.img.gz"
               echo "Running 'nix run .#build' first"
               nix run .#build
-              sops exec-env ./secrets/linode.env "./scripts/upload-image.sh -i $IMAGE_PATH $*"
+              sops exec-env "$SECRET_FILE" "./scripts/upload-image.sh -i $IMAGE_PATH $*"
           fi
         '';
       };
@@ -62,16 +61,17 @@
         ];
         text = ''
           set -euo pipefail
+          SECRET_FILE="${self}/secrets/linode.env"
           files=(result/nixos*.img.gz)
           if [ ''${#files[@]} -gt 0 ]; then
             IMAGE_PATH="$(pwd)/''${files[0]}"
-            sops exec-env ./secrets/linode.env "./scripts/provision.sh -i $IMAGE_PATH $*"
+            sops exec-env "$SECRET_FILE" "./scripts/provision.sh -i $IMAGE_PATH $*"
           else
             echo "Existing: No image found at result/nixos.img.gz"
             echo "Running 'nix run .#build' and .#upload first"
             nix run .#build
-            sops exec-env ./secrets/linode.env "./scripts/upload-image.sh -i $IMAGE_PATH $*"
-            sops exec-env ./secrets/linode.env "./scripts/provision.sh -i $IMAGE_PATH $*"
+            sops exec-env "$SECRET_FILE" "./scripts/upload-image.sh -i $IMAGE_PATH $*"
+            sops exec-env "$SECRET_FILE" "./scripts/provision.sh -i $IMAGE_PATH $*"
           fi
         '';
       };
@@ -85,7 +85,8 @@
         ];
         text = ''
           set -euo pipefail
-          sops exec-env ./secrets/linode.env "./scripts/domain-setup.sh $*"
+          SECRET_FILE="${self}/secrets/linode.env"
+          sops exec-env "$SECRET_FILE" "./scripts/domain-setup.sh $*"
         '';
       };
 
@@ -98,7 +99,8 @@
         ];
         text = ''
           set -euo pipefail
-          sops exec-env ./secrets/linode.env "./scripts/purge.sh $*"
+          SECRET_FILE="${self}/secrets/linode.env"
+          sops exec-env "$SECRET_FILE" "./scripts/purge.sh $*"
         '';
       };
 
@@ -108,6 +110,7 @@
       };
 
   in {
+
     
         nixosModules.base = import ./images/base/default.nix;
     
