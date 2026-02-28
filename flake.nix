@@ -13,14 +13,14 @@
       build-base-image = pkgs.writeShellApplication {
         name = "nix-build-base-image";
         runtimeInputs = with pkgs; [ 
-          nixos-rebuild 
           bash
         ];
         text = ''
           #!/usr/bin/env bash
           set -euo pipefail
           echo "Building Linode image..."
-          nixos-rebuild build-image --flake ${self}#baseconfig --image-variant linode
+          # nixos-rebuild build-image --flake ${self}#baseconfig --image-variant linode
+          nix build .#linodeImage
           echo "✓ Image built"
           ls -lh result/
         '';
@@ -107,8 +107,12 @@
 
   in {
 
-    
         nixosModules.base = import ./images/base/default.nix;
+
+        packages.${system} = {
+          linodeImage = nixosConfigurations.baseconfig.config.system.build.linodeImage;
+          default = self.packages.${system}.linodeImage;
+        };
     
         # ===== development environment ====
           devShells.${system}.default = pkgs.mkShell {
@@ -138,7 +142,7 @@
             provision = { type = "app"; program = "${provisioner}/bin/nix-run-provision"; };
             domain = { type = "app"; program = "${domainer}/bin/nix-run-domain"; };
             purge = { type = "app"; program = "${purger}/bin/nix-run-purge"; };
-            default = self.apps.${system}.build;
+            default = self.apps.${system}.build-base-image;
           };
 
           inherit nixosConfigurations;
