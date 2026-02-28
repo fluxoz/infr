@@ -10,8 +10,8 @@
     system = "x86_64-linux";
     pkgs = nixpkgs.legacyPackages.${system};
 
-      builder = pkgs.writeShellApplication {
-        name = "nix-build-image";
+      build-base-image = pkgs.writeShellApplication {
+        name = "nix-build-base-image";
         runtimeInputs = with pkgs; [ 
           nixos-rebuild 
           bash
@@ -20,7 +20,7 @@
           #!/usr/bin/env bash
           set -euo pipefail
           echo "Building Linode image..."
-          nixos-rebuild build-image --flake .#baseconfig --image-variant linode
+          nixos-rebuild build-image --flake ${self}/#baseconfig --image-variant linode
           echo "✓ Image built"
           ls -lh result/
         '';
@@ -36,19 +36,17 @@
         text = ''
           set -euo pipefail
           shopt -s nullglob
-          SECRET_FILE="${self}/secrets/linode.env"
-          echo "$SECRET_FILE"
           echo "[INFO]: Initiating image upload"
           files=(result/nixos*.img.gz)
           if [ ''${#files[@]} -gt 0 ]; then
             IMAGE_PATH="$(pwd)/''${files[0]}"
             echo "Uploading image: $IMAGE_PATH"
-            sops exec-env "$SECRET_FILE" "./scripts/upload-image.sh -i $IMAGE_PATH $*"
+            sops exec-env "${self}/secrets/linode.env" "${self}/scripts/upload-image.sh -i $IMAGE_PATH $*"
           else
             echo "Existing: No image found at result/nixos.img.gz"
-              echo "Running 'nix run .#build' first"
-              nix run .#build
-              sops exec-env "$SECRET_FILE" "./scripts/upload-image.sh -i $IMAGE_PATH $*"
+              echo "Running 'nix run .#build-image' first"
+              nix run .#build-image
+              sops exec-env "${self}/secrets/linode.env" "${self}/scripts/upload-image.sh -i $IMAGE_PATH $*"
           fi
         '';
       };
@@ -62,17 +60,16 @@
         ];
         text = ''
           set -euo pipefail
-          SECRET_FILE="${self}/secrets/linode.env"
           files=(result/nixos*.img.gz)
           if [ ''${#files[@]} -gt 0 ]; then
             IMAGE_PATH="$(pwd)/''${files[0]}"
-            sops exec-env "$SECRET_FILE" "./scripts/provision.sh -i $IMAGE_PATH $*"
+            sops exec-env "${self}/secrets/linode.env" "${self}/scripts/provision.sh -i $IMAGE_PATH $*"
           else
             echo "Existing: No image found at result/nixos.img.gz"
-            echo "Running 'nix run .#build' and .#upload first"
-            nix run .#build
-            sops exec-env "$SECRET_FILE" "./scripts/upload-image.sh -i $IMAGE_PATH $*"
-            sops exec-env "$SECRET_FILE" "./scripts/provision.sh -i $IMAGE_PATH $*"
+            echo "Running 'nix run .#build-image' and .#upload first"
+            nix run .#build-image
+            sops exec-env "${self}/secrets/linode.env" "${self}/scripts/upload-image.sh -i $IMAGE_PATH $*"
+            sops exec-env "${self}/secrets/linode.env" "${self}/scripts/provision.sh -i $IMAGE_PATH $*"
           fi
         '';
       };
@@ -86,8 +83,7 @@
         ];
         text = ''
           set -euo pipefail
-          SECRET_FILE="${self}/secrets/linode.env"
-          sops exec-env "$SECRET_FILE" "./scripts/domain-setup.sh $*"
+          sops exec-env "${self}/secrets/linode.env" "${self}/scripts/domain-setup.sh $*"
         '';
       };
 
@@ -100,8 +96,7 @@
         ];
         text = ''
           set -euo pipefail
-          SECRET_FILE="${self}/secrets/linode.env"
-          sops exec-env "$SECRET_FILE" "./scripts/purge.sh $*"
+          sops exec-env "${self}/secrets/linode.env" "${self}/scripts/purge.sh $*"
         '';
       };
 
@@ -138,7 +133,7 @@
 
         # ===== flake apps =====
           apps.${system} = {
-            build = { type = "app"; program = "${builder}/bin/nix-build-image"; };
+            build = { type = "app"; program = "${build-base-image}/bin/nix-build-base-image"; };
             upload = { type = "app"; program = "${uploader}/bin/nix-run-upload"; };
             provision = { type = "app"; program = "${provisioner}/bin/nix-run-provision"; };
             domain = { type = "app"; program = "${domainer}/bin/nix-run-domain"; };
