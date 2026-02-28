@@ -5,7 +5,7 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
   };
 
-  outputs = { self, nixpkgs, sops-nix, ... }:
+  outputs = { self, nixpkgs, ... }:
   let
     system = "x86_64-linux";
     pkgs = nixpkgs.legacyPackages.${system};
@@ -133,7 +133,7 @@
 
         # ===== flake apps =====
           apps.${system} = {
-            build = { type = "app"; program = "${build-base-image}/bin/nix-build-base-image"; };
+            build-base-image = { type = "app"; program = "${build-base-image}/bin/nix-build-base-image"; };
             upload = { type = "app"; program = "${uploader}/bin/nix-run-upload"; };
             provision = { type = "app"; program = "${provisioner}/bin/nix-run-provision"; };
             domain = { type = "app"; program = "${domainer}/bin/nix-run-domain"; };
