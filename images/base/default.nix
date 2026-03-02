@@ -27,7 +27,6 @@
 
   security.sudo.wheelNeedsPassword = false;
 
-
   environment.systemPackages = with pkgs; [ 
     vim
     curl
@@ -60,6 +59,7 @@
   fileSystems."/" = lib.mkForce {
     device = "/dev/disk/by-label/nixos";
     fsType = "ext4";
+    autoResize = true;
   };
 
   swapDevices = [ 
