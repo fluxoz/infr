@@ -106,9 +106,6 @@
       };
 
   in {
-
-        nixosModules.base = import ./images/base/default.nix;
-
         packages.${system} = {
           linodeImage = nixosConfigurations.baseconfig.config.system.build.linodeImage;
           default = self.packages.${system}.linodeImage;
@@ -144,7 +141,5 @@
             purge = { type = "app"; program = "${purger}/bin/nix-run-purge"; };
             default = self.apps.${system}.build-base-image;
           };
-
-          inherit nixosConfigurations;
         };
       }
