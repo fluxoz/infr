@@ -106,40 +106,41 @@
       };
 
   in {
+        inherit nixosConfigurations;
         packages.${system} = {
           linodeImage = nixosConfigurations.baseconfig.config.system.build.linodeImage;
           default = self.packages.${system}.linodeImage;
         };
     
         # ===== development environment ====
-          devShells.${system}.default = pkgs.mkShell {
-            buildInputs = with pkgs; [
-              jq
-              openssl
-              sops
-              nixos-rebuild
-            ];
-            shellHook = ''
-              export SOPS_EDITOR=nvim
-              echo ""
-              echo "🚀 Linode NixOS Image Builder"
-              echo "=============================="
-              echo "nix run .#build      - Build Linode image"
-              echo "nix run .#upload     - Upload to Linode"
-              echo "nix run .#provision  - Provision infrastructure"
-              echo "nix run .#purge      - Purge a linode"
-              echo ""
-            '';
-          };
+        devShells.${system}.default = pkgs.mkShell {
+          buildInputs = with pkgs; [
+            jq
+            openssl
+            sops
+            nixos-rebuild
+          ];
+          shellHook = ''
+            export SOPS_EDITOR=nvim
+            echo ""
+            echo "🚀 Linode NixOS Image Builder"
+            echo "=============================="
+            echo "nix run .#build      - Build Linode image"
+            echo "nix run .#upload     - Upload to Linode"
+            echo "nix run .#provision  - Provision infrastructure"
+            echo "nix run .#purge      - Purge a linode"
+            echo ""
+          '';
+        };
 
         # ===== flake apps =====
-          apps.${system} = {
-            build-base-image = { type = "app"; program = "${build-base-image}/bin/nix-build-base-image"; };
-            upload = { type = "app"; program = "${uploader}/bin/nix-run-upload"; };
-            provision = { type = "app"; program = "${provisioner}/bin/nix-run-provision"; };
-            domain = { type = "app"; program = "${domainer}/bin/nix-run-domain"; };
-            purge = { type = "app"; program = "${purger}/bin/nix-run-purge"; };
-            default = self.apps.${system}.build-base-image;
-          };
+        apps.${system} = {
+          build-base-image = { type = "app"; program = "${build-base-image}/bin/nix-build-base-image"; };
+          upload = { type = "app"; program = "${uploader}/bin/nix-run-upload"; };
+          provision = { type = "app"; program = "${provisioner}/bin/nix-run-provision"; };
+          domain = { type = "app"; program = "${domainer}/bin/nix-run-domain"; };
+          purge = { type = "app"; program = "${purger}/bin/nix-run-purge"; };
+          default = self.apps.${system}.build-base-image;
         };
-      }
+      };
+    }
