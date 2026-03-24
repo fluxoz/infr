@@ -18,6 +18,7 @@ usage() {
 IMAGE_FILE=(./result/nixos*.img.gz)
 REGION="us-lax"
 TYPE="g6-dedicated-2"
+# TYPE="g6-nanode-1"
 ROOT_PASS=$(openssl rand -base64 32)  # or use a fixed one
 IMAGE_ID=""
 LINODE_API="https://api.linode.com/v4"
