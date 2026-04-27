@@ -60,7 +60,7 @@
           filter = "sshd";
           backend = "systemd";
           logpath = "journal ";
-          maxretry = 3;
+          maxretry = 20;
           bantime = 3600;
           findtime = 600;
         };
